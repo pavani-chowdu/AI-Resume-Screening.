@@ -1,7 +1,3 @@
-streamlit
-pandas
-matplotlib
-wordcloud
 PyPDF2
 scikit-learn
 fastapi
