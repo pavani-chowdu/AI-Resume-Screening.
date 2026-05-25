@@ -15,7 +15,7 @@ from backend.app.schemas.schemas import TokenData
 import secrets
 
 # JWT Configuration
-SECRET_KEY = "supersecretkey_dev_mode" # In production, read from env
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_dev_mode")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 day
 
