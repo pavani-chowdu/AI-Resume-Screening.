@@ -1,32 +1,30 @@
-from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 class BERTMatcher:
+    """
+    Renamed to keep compatibility with existing imports, 
+    but uses TF-IDF for memory efficiency on free-tier hosting.
+    """
     def __init__(self):
-        # Lazy loading of model to prevent huge boot times when importing
-        self.model = None
-
-    def _load_model(self):
-        if self.model is None:
-            # all-MiniLM-L6-v2 is fast and effective for semantic similarity
-            print("Loading BERT SentenceTransformer model... This might take a moment.")
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.vectorizer = TfidfVectorizer(stop_words='english')
 
     def calculate_similarity(self, resume_text: str, jd_text: str) -> float:
         """
-        Calculates cosine similarity between the embedded resume and the embedded
-        Job Description using a pre-trained sentence transformer model.
-        Returns a float between 0.0 and 1.0.
+        Calculates cosine similarity using TF-IDF.
+        This is extremely memory-efficient compared to Transformer models.
         """
-        self._load_model()
-        
-        # In a real heavy system, you might chunk the resume text to not exceed context lengths.
-        # MiniLM supports up to 256 tokens, but we will pass the whole text and let it truncate 
-        # or we could chunk it. For startup MVP, truncation or passing raw works fine.
-        resume_embedding = self.model.encode(resume_text, convert_to_tensor=True)
-        jd_embedding = self.model.encode(jd_text, convert_to_tensor=True)
-        
-        cosine_score = util.cos_sim(resume_embedding, jd_embedding)
-        return float(cosine_score[0][0])
+        try:
+            # Fit and transform the two texts
+            tfidf_matrix = self.vectorizer.fit_transform([resume_text, jd_text])
+            
+            # Calculate cosine similarity between the two vectors
+            similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+            
+            return float(similarity[0][0])
+        except Exception as e:
+            print(f"Similarity error: {e}")
+            return 0.0
 
-# Singleton
+# Singleton instance
 matcher = BERTMatcher()
