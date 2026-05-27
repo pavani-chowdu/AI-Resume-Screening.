@@ -12,9 +12,9 @@ app = FastAPI(title="SmartHire AI Platform API", version="1.0.0")
 # CORS Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, replace with specific React frontend URL
+    allow_origins=["*"], # For demo convenience. In production, list your Vercel URL
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
